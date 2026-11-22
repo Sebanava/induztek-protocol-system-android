@@ -16,8 +16,6 @@ import cl.induztek.protocol.data.*
 import cl.induztek.protocol.model.*
 import cl.induztek.protocol.ui.components.*
 import cl.induztek.protocol.viewmodel.*
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Composable
 fun FormularioScreen(
@@ -41,8 +39,8 @@ fun FormularioScreen(
         }
     LaunchedEffect(accion, contexto, item) {
         val iniciales = mutableMapOf<String, String>()
-        iniciales["fecha"] = LocalDate.now().toString()
-        iniciales["fechaHora"] = LocalDateTime.now().withSecond(0).withNano(0).toString()
+        iniciales["fecha"] = cl.induztek.protocol.domain.Validacion.hoy().toString()
+        iniciales["fechaHora"] = cl.induztek.protocol.domain.Validacion.ahora().withSecond(0).withNano(0).toString()
         iniciales["activo"] = "SI"
         iniciales["rolId"] = Perfil.TECNICO.name
         iniciales["tipo"] = TipoVisita.SOLO_PRUEBAS.name
@@ -168,7 +166,11 @@ fun FormularioScreen(
                     titulo,
                     estado.errores[clave],
                     if (numerico) KeyboardType.Decimal
-                    else if (clave == "correo") KeyboardType.Email else KeyboardType.Text,
+                    else when (clave) {
+                        "correo" -> KeyboardType.Email
+                        "telefono" -> KeyboardType.Phone
+                        else -> KeyboardType.Text
+                    },
                     icono,
                     secreto,
                 )
@@ -274,7 +276,7 @@ fun FormularioScreen(
                     campo("contacto", "Nombre del contacto")
                     campo("cargo", "Cargo del contacto")
                     campo("giro", "Giro (opcional)")
-                    campo("telefono", "Teléfono (opcional)")
+                    campo("telefono", "Teléfono chileno · 9 dígitos (opcional)")
                     Text("El acceso queda inactivo hasta que el jefe técnico habilite la cuenta.")
                 }
                 Accion.CUENTA -> {

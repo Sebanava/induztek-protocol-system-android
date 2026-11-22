@@ -14,7 +14,7 @@ class InduztekRepository(private val db: InduztekDatabase) {
 
     private fun id() = UUID.randomUUID().toString()
 
-    private fun ahora() = LocalDateTime.now().withNano(0).toString()
+    private fun ahora() = Validacion.ahora().withNano(0).toString()
 
     private fun fallo(clave: String, mensaje: String): Nothing =
         throw ErrorFormulario(mapOf(clave to mensaje))
@@ -110,7 +110,7 @@ class InduztekRepository(private val db: InduztekDatabase) {
                     contacto = d.getValue("contacto"),
                     cargo = d.getValue("cargo"),
                     giro = d["giro"].orEmpty(),
-                    telefono = d["telefono"].orEmpty(),
+                    telefono = Validacion.telefonoChileno(d["telefono"].orEmpty()),
                 )
             )
         }
@@ -213,7 +213,7 @@ class InduztekRepository(private val db: InduztekDatabase) {
                 d["anio"]
                     ?.takeIf { it.isNotBlank() }
                     ?.let {
-                        it.toIntOrNull()?.takeIf { y -> y in 1800..LocalDate.now().year }
+                        it.toIntOrNull()?.takeIf { y -> Validacion.fabricacionValida(y) }
                             ?: fallo("anio", "Año inválido")
                     }
             val max =
@@ -255,7 +255,7 @@ class InduztekRepository(private val db: InduztekDatabase) {
             }
             Validacion.requeridos(d, "ot", "instalacionId", "ingenieroId", "fecha", "tipo")
             val fecha = Validacion.fecha(d, "fecha")
-            if (fecha.isAfter(LocalDate.now()))
+            if (fecha.isAfter(Validacion.hoy()))
                 fallo("fecha", "Registra una visita ejecutada, no una planificación futura")
             check(dao.instalacions().any { it.id == d["instalacionId"] })
             check(
@@ -282,7 +282,7 @@ class InduztekRepository(private val db: InduztekDatabase) {
 
     private fun ambiente(d: Map<String, String>): Pair<Double, Double> {
         val t = d["temperatura"]?.replace(',', '.')?.toDoubleOrNull()
-        if (t == null || !t.isFinite()) fallo("temperatura", "Ingresa temperatura en °C")
+        if (t == null || !t.isFinite() || t < -273.15) fallo("temperatura", "Ingresa una temperatura válida en °C")
         val h = Validacion.numero(d, "humedad", false)
         if (h > 100) fallo("humedad", "La humedad debe estar entre 0 y 100 %")
         return t to h
@@ -308,9 +308,11 @@ class InduztekRepository(private val db: InduztekDatabase) {
                 }
             if (
                 fecha.toLocalDate() != LocalDate.parse(v.fecha) ||
-                    fecha.isAfter(LocalDateTime.now())
+                    fecha.isAfter(Validacion.ahora())
             )
                 fallo("fechaHora", "La fecha debe corresponder a la visita y no ser futura")
+            if (e.anio?.let { !Validacion.fabricacionValida(it, fecha.toLocalDate()) } == true)
+                fallo("fechaHora", "La prueba no puede ser anterior al año de fabricación")
             val (t, h) = ambiente(d)
             val reemplaza = d["reemplazaId"]?.takeIf { it.isNotBlank() }
             reemplaza?.let { original ->
@@ -638,6 +640,8 @@ class InduztekRepository(private val db: InduztekDatabase) {
             check(d["tipoPruebaId"] in Catalogo.pruebas)
             val desde = Validacion.fecha(d, "desde")
             val hasta = Validacion.fecha(d, "hasta")
+            if (desde.isAfter(Validacion.hoy()))
+                fallo("desde", "La calibración realizada no puede tener fecha futura")
             if (hasta < desde)
                 fallo("hasta", "El vencimiento no puede ser anterior a la calibración")
             val existente =

@@ -102,4 +102,33 @@ class RutUnicidadTest {
         listOf("10000013K", "10000013-k", " 10.000.013-K ")
             .forEach { rut -> rechazaRut { repo.guardarPersonal(personal(rut)) } }
     }
+
+    @Test
+    fun telefonoChilenoNormalizaFijosYMovilesSinTruncar() {
+        assertEquals("+56912345678", Validacion.telefonoChileno(" 9 1234 5678 "))
+        assertEquals("+56223456789", Validacion.telefonoChileno("+56 (2) 2345-6789"))
+        assertEquals("", Validacion.telefonoChileno(" "))
+        listOf("9123456789", "91234567", "+54912345678", "91234567x").forEach {
+            assertEquals("telefono", assertThrows(ErrorFormulario::class.java) {
+                Validacion.telefonoChileno(it)
+            }.campos.keys.single())
+        }
+    }
+
+    @Test
+    fun correoRechazaDominiosYEstructurasInvalidas() {
+        assertTrue(Validacion.correoValido(" Nombre+informe@empresa.cl "))
+        listOf("a..b@empresa.cl", "a@-empresa.cl", "a@empresa..cl", "a@empresa.123", "a@empresa", "a b@empresa.cl").forEach {
+            assertFalse(it, Validacion.correoValido(it))
+        }
+        assertFalse(Validacion.rut("00.000.000-0"))
+    }
+
+    @Test
+    fun fabricacionSeEvaluaContraFechaDelRegistro() {
+        val visita = java.time.LocalDate.of(2024, 8, 1)
+        assertTrue(Validacion.fabricacionValida(2015, visita))
+        assertTrue(Validacion.fabricacionValida(2024, visita))
+        assertFalse(Validacion.fabricacionValida(2025, visita))
+    }
 }
