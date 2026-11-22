@@ -1,6 +1,12 @@
 package cl.induztek.protocol.ui.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import cl.induztek.protocol.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,9 +32,24 @@ fun Pantalla(
     contenido: @Composable ColumnScope.() -> Unit,
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(titulo) },
+                title = { Text(titulo, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                actions = {
+                    Surface(
+                        modifier = Modifier.padding(end = 16.dp).size(36.dp),
+                        shape = MaterialTheme.shapes.small,
+                        color = androidx.compose.ui.graphics.Color(0xFFE1F0EF),
+                    ) {
+                        Image(
+                            painterResource(R.drawable.logo_induztek),
+                            contentDescription = "Induztek",
+                            modifier = Modifier.padding(4.dp),
+                        )
+                    }
+                },
                 navigationIcon = {
                     if (volver != null)
                         IconButton(onClick = volver) {
@@ -36,17 +57,18 @@ fun Pantalla(
                         }
                 },
             )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         }
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             Column(
                 Modifier.widthIn(max = 840.dp)
                     .fillMaxWidth()
-                    .align(androidx.compose.ui.Alignment.TopCenter)
+                    .align(Alignment.TopCenter)
                     .verticalScroll(rememberScrollState())
                     .imePadding()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = 18.dp, vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
                 content = contenido,
             )
         }
@@ -55,8 +77,10 @@ fun Pantalla(
 
 @Composable
 fun TarjetaSeccion(titulo: String, contenido: @Composable ColumnScope.() -> Unit) {
-    Card(
+    OutlinedCard(
         Modifier.fillMaxWidth().animateContentSize(),
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -77,7 +101,7 @@ fun BotonPrincipal(
     habilitado: Boolean = true,
     icono: ImageVector = Icons.Default.Check,
 ) {
-    Button(onClick, Modifier.fillMaxWidth().heightIn(min = 52.dp), enabled = habilitado) {
+    Button(onClick, Modifier.fillMaxWidth().heightIn(min = 52.dp), enabled = habilitado, shape = MaterialTheme.shapes.medium) {
         Icon(icono, null)
         Spacer(Modifier.width(8.dp))
         Text(texto)
@@ -86,7 +110,7 @@ fun BotonPrincipal(
 
 @Composable
 fun BotonSecundario(texto: String, onClick: () -> Unit, habilitado: Boolean = true) {
-    OutlinedButton(onClick, Modifier.fillMaxWidth().heightIn(min = 48.dp), enabled = habilitado) {
+    OutlinedButton(onClick, Modifier.fillMaxWidth().heightIn(min = 48.dp), enabled = habilitado, shape = MaterialTheme.shapes.medium, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
         Text(texto)
     }
 }
@@ -108,6 +132,7 @@ fun CampoTexto(
         label = { Text(etiqueta) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        shape = MaterialTheme.shapes.medium,
         isError = error != null,
         leadingIcon = { Icon(if (contrasena) Icons.Default.Lock else icono, null) },
         trailingIcon = {
@@ -169,7 +194,7 @@ fun EtiquetaEstado(texto: String, resultado: Resultado? = null) {
     val color =
         when (resultado) {
             Resultado.RECHAZADO -> MaterialTheme.colorScheme.error
-            Resultado.OBSERVADO -> MaterialTheme.colorScheme.secondary
+            Resultado.OBSERVADO -> if (androidx.compose.foundation.isSystemInDarkTheme()) androidx.compose.ui.graphics.Color(0xFFFFC675) else cl.induztek.protocol.ui.theme.Alerta
             Resultado.APROBADO -> MaterialTheme.colorScheme.tertiary
             null -> MaterialTheme.colorScheme.primary
         }
@@ -183,12 +208,5 @@ fun EtiquetaEstado(texto: String, resultado: Resultado? = null) {
             Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelLarge,
         )
-    }
-}
-
-@Composable
-fun TarjetaEstadistica(numero: Int, texto: String) {
-    TarjetaSeccion(texto) {
-        Text(numero.toString(), style = MaterialTheme.typography.headlineLarge)
     }
 }

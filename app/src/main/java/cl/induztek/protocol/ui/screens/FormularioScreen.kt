@@ -1,6 +1,5 @@
 package cl.induztek.protocol.ui.screens
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.animation.AnimatedVisibility
@@ -125,7 +124,7 @@ fun FormularioScreen(
     val titulo =
         when (accion) {
             Accion.PERSONAL -> "Gestionar personal"
-            Accion.LOGIN -> "Acceso a Induztek"
+            Accion.LOGIN -> "Acceso"
             Accion.CLIENTE -> "Registrar empresa cliente"
             Accion.CUENTA -> "Habilitar cuenta cliente"
             Accion.INSTALACION -> "Registrar instalación"
@@ -144,13 +143,13 @@ fun FormularioScreen(
         }
     Pantalla(titulo, volver) {
         if (accion == Accion.LOGIN)
-            TarjetaSeccion("Induztek Protocol System") {
-                androidx.compose.foundation.Image(
-                    androidx.compose.ui.res.painterResource(cl.induztek.protocol.R.drawable.logo_induztek),
-                    contentDescription = null,
-                    modifier = androidx.compose.ui.Modifier.size(88.dp),
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Induztek\nProtocol System", style = MaterialTheme.typography.headlineLarge)
+                Text(
+                    "Gestión de protocolos eléctricos",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text("Gestión de protocolos eléctricos")
             }
         TarjetaSeccion(if (accion == Accion.LOGIN) "Iniciar sesión" else "Datos del registro") {
             @Composable
