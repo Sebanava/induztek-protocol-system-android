@@ -1,0 +1,7 @@
+﻿<resources>
+    <style name="Theme.Induztek.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#F1F8F9</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_induztek</item>
+        <item name="postSplashScreenTheme">@style/Theme.Induztek</item>
+    </style>
+</resources>

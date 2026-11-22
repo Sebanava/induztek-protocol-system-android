@@ -1,0 +1,1528 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "afbc384c06b3b330af81d9744e70bca2",
+    "entities": [
+      {
+        "tableName": "sincronizacion_meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tipo` TEXT NOT NULL, `registroId` TEXT NOT NULL, `version` INTEGER NOT NULL, `huella` TEXT NOT NULL, PRIMARY KEY(`tipo`, `registroId`))",
+        "fields": [
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registroId",
+            "columnName": "registroId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "huella",
+            "columnName": "huella",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tipo",
+            "registroId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "region",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "comuna",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `regionId` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`regionId`) REFERENCES `region`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "regionId",
+            "columnName": "regionId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_comuna_regionId",
+            "unique": false,
+            "columnNames": [
+              "regionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_comuna_regionId` ON `${TABLE_NAME}` (`regionId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "region",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "regionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "rol",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "usuario",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `rolId` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rut` TEXT NOT NULL, `correo` TEXT NOT NULL, `claveHash` TEXT NOT NULL, `activo` INTEGER NOT NULL, `contacto` TEXT NOT NULL, `cargo` TEXT NOT NULL, `giro` TEXT NOT NULL, `telefono` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`rolId`) REFERENCES `rol`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rolId",
+            "columnName": "rolId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correo",
+            "columnName": "correo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "claveHash",
+            "columnName": "claveHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activo",
+            "columnName": "activo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contacto",
+            "columnName": "contacto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cargo",
+            "columnName": "cargo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "giro",
+            "columnName": "giro",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "telefono",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usuario_correo",
+            "unique": true,
+            "columnNames": [
+              "correo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_correo` ON `${TABLE_NAME}` (`correo`)"
+          },
+          {
+            "name": "index_usuario_rut",
+            "unique": true,
+            "columnNames": [
+              "rut"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_rut` ON `${TABLE_NAME}` (`rut`)"
+          },
+          {
+            "name": "index_usuario_rolId",
+            "unique": false,
+            "columnNames": [
+              "rolId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_rolId` ON `${TABLE_NAME}` (`rolId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "rol",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rolId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "instalacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `clienteId` TEXT NOT NULL, `nombre` TEXT NOT NULL, `ubicacion` TEXT NOT NULL, `comuna` TEXT NOT NULL, `acceso` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`clienteId`) REFERENCES `usuario`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`comuna`) REFERENCES `comuna`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clienteId",
+            "columnName": "clienteId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ubicacion",
+            "columnName": "ubicacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comuna",
+            "columnName": "comuna",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceso",
+            "columnName": "acceso",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_instalacion_clienteId",
+            "unique": false,
+            "columnNames": [
+              "clienteId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_instalacion_clienteId` ON `${TABLE_NAME}` (`clienteId`)"
+          },
+          {
+            "name": "index_instalacion_comuna",
+            "unique": false,
+            "columnNames": [
+              "comuna"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_instalacion_comuna` ON `${TABLE_NAME}` (`comuna`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "usuario",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "clienteId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "comuna",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "comuna"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tipoequipo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `clasificacion` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clasificacion",
+            "columnName": "clasificacion",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "equipo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `instalacionId` TEXT NOT NULL, `tipoId` TEXT NOT NULL, `tag` TEXT NOT NULL, `marca` TEXT NOT NULL, `modelo` TEXT NOT NULL, `serie` TEXT NOT NULL, `anio` INTEGER, `potencia` REAL, `tensiones` TEXT NOT NULL, `corriente` REAL, `maxContactos` REAL, `observaciones` TEXT NOT NULL, `foto` BLOB, PRIMARY KEY(`id`), FOREIGN KEY(`instalacionId`) REFERENCES `instalacion`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`tipoId`) REFERENCES `tipoequipo`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instalacionId",
+            "columnName": "instalacionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoId",
+            "columnName": "tipoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tag",
+            "columnName": "tag",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "marca",
+            "columnName": "marca",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelo",
+            "columnName": "modelo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serie",
+            "columnName": "serie",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "potencia",
+            "columnName": "potencia",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tensiones",
+            "columnName": "tensiones",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "corriente",
+            "columnName": "corriente",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "maxContactos",
+            "columnName": "maxContactos",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "observaciones",
+            "columnName": "observaciones",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foto",
+            "columnName": "foto",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_equipo_instalacionId_tag",
+            "unique": true,
+            "columnNames": [
+              "instalacionId",
+              "tag"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_equipo_instalacionId_tag` ON `${TABLE_NAME}` (`instalacionId`, `tag`)"
+          },
+          {
+            "name": "index_equipo_tipoId",
+            "unique": false,
+            "columnNames": [
+              "tipoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_equipo_tipoId` ON `${TABLE_NAME}` (`tipoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "instalacion",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instalacionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "tipoequipo",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tipoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tipoprueba",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "parametro",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tipoId` TEXT NOT NULL, `codigo` TEXT NOT NULL, `nombre` TEXT NOT NULL, `unidad` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`tipoId`) REFERENCES `tipoprueba`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoId",
+            "columnName": "tipoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codigo",
+            "columnName": "codigo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidad",
+            "columnName": "unidad",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_parametro_tipoId_codigo",
+            "unique": true,
+            "columnNames": [
+              "tipoId",
+              "codigo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_parametro_tipoId_codigo` ON `${TABLE_NAME}` (`tipoId`, `codigo`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tipoprueba",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tipoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "instrumento",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tipoPruebaId` TEXT NOT NULL, `nombre` TEXT NOT NULL, `marcaModelo` TEXT NOT NULL, `serie` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`tipoPruebaId`) REFERENCES `tipoprueba`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoPruebaId",
+            "columnName": "tipoPruebaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "marcaModelo",
+            "columnName": "marcaModelo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serie",
+            "columnName": "serie",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_instrumento_serie",
+            "unique": true,
+            "columnNames": [
+              "serie"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_instrumento_serie` ON `${TABLE_NAME}` (`serie`)"
+          },
+          {
+            "name": "index_instrumento_tipoPruebaId",
+            "unique": false,
+            "columnNames": [
+              "tipoPruebaId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_instrumento_tipoPruebaId` ON `${TABLE_NAME}` (`tipoPruebaId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tipoprueba",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tipoPruebaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "calibracion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `instrumentoId` TEXT NOT NULL, `desde` TEXT NOT NULL, `hasta` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`instrumentoId`) REFERENCES `instrumento`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instrumentoId",
+            "columnName": "instrumentoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "desde",
+            "columnName": "desde",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasta",
+            "columnName": "hasta",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_calibracion_instrumentoId",
+            "unique": false,
+            "columnNames": [
+              "instrumentoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_calibracion_instrumentoId` ON `${TABLE_NAME}` (`instrumentoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "instrumento",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instrumentoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "visita",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `instalacionId` TEXT NOT NULL, `ingenieroId` TEXT NOT NULL, `ot` TEXT NOT NULL, `fecha` TEXT NOT NULL, `tipo` TEXT NOT NULL, `cierre` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`instalacionId`) REFERENCES `instalacion`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`ingenieroId`) REFERENCES `usuario`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instalacionId",
+            "columnName": "instalacionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingenieroId",
+            "columnName": "ingenieroId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ot",
+            "columnName": "ot",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cierre",
+            "columnName": "cierre",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_visita_ot",
+            "unique": true,
+            "columnNames": [
+              "ot"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_visita_ot` ON `${TABLE_NAME}` (`ot`)"
+          },
+          {
+            "name": "index_visita_instalacionId",
+            "unique": false,
+            "columnNames": [
+              "instalacionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_visita_instalacionId` ON `${TABLE_NAME}` (`instalacionId`)"
+          },
+          {
+            "name": "index_visita_ingenieroId",
+            "unique": false,
+            "columnNames": [
+              "ingenieroId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_visita_ingenieroId` ON `${TABLE_NAME}` (`ingenieroId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "instalacion",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instalacionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingenieroId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "participante",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `visitaId` TEXT NOT NULL, `usuarioId` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`visitaId`) REFERENCES `visita`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`usuarioId`) REFERENCES `usuario`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visitaId",
+            "columnName": "visitaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_participante_visitaId_usuarioId",
+            "unique": true,
+            "columnNames": [
+              "visitaId",
+              "usuarioId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_participante_visitaId_usuarioId` ON `${TABLE_NAME}` (`visitaId`, `usuarioId`)"
+          },
+          {
+            "name": "index_participante_usuarioId",
+            "unique": false,
+            "columnNames": [
+              "usuarioId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_participante_usuarioId` ON `${TABLE_NAME}` (`usuarioId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "visita",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "visitaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "usuarioId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "recepcion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `visitaId` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rut` TEXT NOT NULL, `cargo` TEXT NOT NULL, `fechaHora` TEXT NOT NULL, `documento` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`visitaId`) REFERENCES `visita`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visitaId",
+            "columnName": "visitaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cargo",
+            "columnName": "cargo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fechaHora",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documento",
+            "columnName": "documento",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_recepcion_visitaId",
+            "unique": true,
+            "columnNames": [
+              "visitaId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_recepcion_visitaId` ON `${TABLE_NAME}` (`visitaId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "visita",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "visitaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "protocolo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `numero` TEXT NOT NULL, `visitaId` TEXT NOT NULL, `equipoId` TEXT NOT NULL, `creadorId` TEXT NOT NULL, `fechaHora` TEXT NOT NULL, `temperatura` REAL, `humedad` REAL, `mantenimiento` TEXT NOT NULL, `estado` TEXT NOT NULL, `motivo` TEXT NOT NULL, `reemplazaId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`visitaId`) REFERENCES `visita`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`equipoId`) REFERENCES `equipo`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`creadorId`) REFERENCES `usuario`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`reemplazaId`) REFERENCES `protocolo`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numero",
+            "columnName": "numero",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visitaId",
+            "columnName": "visitaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "equipoId",
+            "columnName": "equipoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creadorId",
+            "columnName": "creadorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fechaHora",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperatura",
+            "columnName": "temperatura",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "humedad",
+            "columnName": "humedad",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mantenimiento",
+            "columnName": "mantenimiento",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reemplazaId",
+            "columnName": "reemplazaId",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_protocolo_numero",
+            "unique": true,
+            "columnNames": [
+              "numero"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_protocolo_numero` ON `${TABLE_NAME}` (`numero`)"
+          },
+          {
+            "name": "index_protocolo_visitaId_equipoId",
+            "unique": true,
+            "columnNames": [
+              "visitaId",
+              "equipoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_protocolo_visitaId_equipoId` ON `${TABLE_NAME}` (`visitaId`, `equipoId`)"
+          },
+          {
+            "name": "index_protocolo_equipoId",
+            "unique": false,
+            "columnNames": [
+              "equipoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_protocolo_equipoId` ON `${TABLE_NAME}` (`equipoId`)"
+          },
+          {
+            "name": "index_protocolo_creadorId",
+            "unique": false,
+            "columnNames": [
+              "creadorId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_protocolo_creadorId` ON `${TABLE_NAME}` (`creadorId`)"
+          },
+          {
+            "name": "index_protocolo_reemplazaId",
+            "unique": false,
+            "columnNames": [
+              "reemplazaId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_protocolo_reemplazaId` ON `${TABLE_NAME}` (`reemplazaId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "visita",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "visitaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "equipo",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "equipoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "creadorId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "protocolo",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reemplazaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "prueba",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `protocoloId` TEXT NOT NULL, `tipoId` TEXT NOT NULL, `elemento` TEXT NOT NULL, `momento` TEXT NOT NULL, `realizada` INTEGER NOT NULL, `motivo` TEXT NOT NULL, `instrumentoId` TEXT, `resultado` TEXT, `comentario` TEXT NOT NULL, `opera` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`protocoloId`) REFERENCES `protocolo`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`tipoId`) REFERENCES `tipoprueba`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`instrumentoId`) REFERENCES `instrumento`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "protocoloId",
+            "columnName": "protocoloId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoId",
+            "columnName": "tipoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "elemento",
+            "columnName": "elemento",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "momento",
+            "columnName": "momento",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "realizada",
+            "columnName": "realizada",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instrumentoId",
+            "columnName": "instrumentoId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "resultado",
+            "columnName": "resultado",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "comentario",
+            "columnName": "comentario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "opera",
+            "columnName": "opera",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_prueba_protocoloId_tipoId_elemento_momento",
+            "unique": true,
+            "columnNames": [
+              "protocoloId",
+              "tipoId",
+              "elemento",
+              "momento"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_prueba_protocoloId_tipoId_elemento_momento` ON `${TABLE_NAME}` (`protocoloId`, `tipoId`, `elemento`, `momento`)"
+          },
+          {
+            "name": "index_prueba_tipoId",
+            "unique": false,
+            "columnNames": [
+              "tipoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_prueba_tipoId` ON `${TABLE_NAME}` (`tipoId`)"
+          },
+          {
+            "name": "index_prueba_instrumentoId",
+            "unique": false,
+            "columnNames": [
+              "instrumentoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_prueba_instrumentoId` ON `${TABLE_NAME}` (`instrumentoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "protocolo",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "protocoloId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "tipoprueba",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tipoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "instrumento",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "instrumentoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "medicion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `pruebaId` TEXT NOT NULL, `parametroId` TEXT NOT NULL, `valor` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`pruebaId`) REFERENCES `prueba`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`parametroId`) REFERENCES `parametro`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pruebaId",
+            "columnName": "pruebaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parametroId",
+            "columnName": "parametroId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valor",
+            "columnName": "valor",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_medicion_pruebaId_parametroId",
+            "unique": true,
+            "columnNames": [
+              "pruebaId",
+              "parametroId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_medicion_pruebaId_parametroId` ON `${TABLE_NAME}` (`pruebaId`, `parametroId`)"
+          },
+          {
+            "name": "index_medicion_parametroId",
+            "unique": false,
+            "columnNames": [
+              "parametroId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_medicion_parametroId` ON `${TABLE_NAME}` (`parametroId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "prueba",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pruebaId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "parametro",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parametroId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "historialestado",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `protocoloId` TEXT NOT NULL, `usuarioId` TEXT NOT NULL, `anterior` TEXT, `nuevo` TEXT NOT NULL, `fechaHora` TEXT NOT NULL, `motivo` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`protocoloId`) REFERENCES `protocolo`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`usuarioId`) REFERENCES `usuario`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "protocoloId",
+            "columnName": "protocoloId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anterior",
+            "columnName": "anterior",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nuevo",
+            "columnName": "nuevo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fechaHora",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_historialestado_protocoloId",
+            "unique": false,
+            "columnNames": [
+              "protocoloId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_historialestado_protocoloId` ON `${TABLE_NAME}` (`protocoloId`)"
+          },
+          {
+            "name": "index_historialestado_usuarioId",
+            "unique": false,
+            "columnNames": [
+              "usuarioId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_historialestado_usuarioId` ON `${TABLE_NAME}` (`usuarioId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "protocolo",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "protocoloId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "usuarioId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'afbc384c06b3b330af81d9744e70bca2')"
+    ]
+  }
+}
