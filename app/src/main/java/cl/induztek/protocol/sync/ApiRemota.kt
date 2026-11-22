@@ -3,6 +3,10 @@ package cl.induztek.protocol.sync
 import com.google.gson.JsonObject
 import retrofit2.http.*
 
+data class SolicitudRecuperacion(val correo: String)
+data class ConfirmacionRecuperacion(val correo: String, val codigo: String, val nueva: String)
+data class CambioClaveRemoto(val actual: String, val nueva: String)
+
 data class CredencialesRemotas(val correo: String, val clave: String)
 
 data class UsuarioRemoto(
@@ -41,6 +45,18 @@ data class CambioRemoto(
 interface IdentidadApi {
     @POST("api/sesiones")
     suspend fun ingresar(@Body credenciales: CredencialesRemotas): SesionRemota
+
+    @POST("api/recuperacion/solicitar")
+    suspend fun solicitarRecuperacion(@Body solicitud: SolicitudRecuperacion): retrofit2.Response<Void>
+
+    @POST("api/recuperacion/confirmar")
+    suspend fun recuperarClave(@Body solicitud: ConfirmacionRecuperacion): retrofit2.Response<Void>
+
+    @POST("api/mi-contrasena")
+    suspend fun cambiarClave(
+        @Header("Authorization") token: String,
+        @Body cambio: CambioClaveRemoto,
+    ): SesionRemota
 
     @GET("api/usuarios")
     suspend fun usuarios(@Header("Authorization") token: String): List<UsuarioRemoto>

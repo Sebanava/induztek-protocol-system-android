@@ -131,4 +131,23 @@ class RutUnicidadTest {
         assertTrue(Validacion.fabricacionValida(2024, visita))
         assertFalse(Validacion.fabricacionValida(2025, visita))
     }
+
+    @Test
+    fun clienteLocalCambiaSuClaveSinJefaturaYConservaSusDatos() = runBlocking {
+        val correo = "mfuentes@envpacifico.ejemplo"
+        val actual = "Induztek2026!"
+        val nueva = "ClientePrueba2026!"
+        entrar(correo)
+        val antes = repo.datos()
+        assertEquals("actual", (runCatching { repo.cambiarClaveLocal("incorrecta", nueva) }
+            .exceptionOrNull() as ErrorFormulario).campos.keys.single())
+        assertEquals("nueva", (runCatching { repo.cambiarClaveLocal(actual, actual) }
+            .exceptionOrNull() as ErrorFormulario).campos.keys.single())
+        repo.cambiarClaveLocal(actual, nueva)
+        repo.salir()
+        assertTrue(runCatching { entrar(correo) }.exceptionOrNull() is ErrorFormulario)
+        repo.ingresar(mapOf("correo" to correo, "clave" to nueva))
+        assertEquals(antes.usuario.id, repo.datos().usuario.id)
+        assertEquals(antes.protocolos, repo.datos().protocolos)
+    }
 }

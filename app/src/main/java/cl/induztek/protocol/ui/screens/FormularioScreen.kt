@@ -26,6 +26,7 @@ fun FormularioScreen(
     app: AppViewModel,
     ocupado: Boolean,
     volver: (() -> Unit)?,
+    recuperar: (() -> Unit)? = null,
     exito: (String) -> Unit,
 ) {
     val vm: FormularioViewModel = viewModel(key = "${accion.name}:$contexto:$item")
@@ -541,6 +542,8 @@ fun FormularioScreen(
                 },
                 !ocupado,
             )
+            if (recuperar != null && accion == Accion.LOGIN)
+                BotonSecundario("Olvidé mi contraseña", recuperar, !ocupado)
         }
     }
 }

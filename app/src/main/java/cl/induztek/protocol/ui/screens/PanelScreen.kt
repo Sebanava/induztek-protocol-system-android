@@ -82,6 +82,7 @@ fun PanelScreen(
             )
         }
         BotonSecundario("Conexión y sincronización", { navegar("sincronizacion") })
+        BotonSecundario("Cambiar contraseña", { navegar("cambiar-clave") })
         BotonSecundario("Cerrar sesión", salir)
     }
 }

@@ -40,6 +40,15 @@ class InduztekRepository(private val db: InduztekDatabase) {
         return u.copy(claveHash = "")
     }
 
+    suspend fun cambiarClaveLocal(actual: String, nueva: String) = db.withTransaction {
+        Validacion.validarCambioClave(actual, nueva)
+        val usuario = actor()
+        if (dao.metas().any { it.tipo == "usuario" && it.registroId == usuario.id && it.version > 0 })
+            error("Conéctate al servidor para cambiar la contraseña de esta cuenta")
+        if (!Claves.verificar(actual, usuario.claveHash)) fallo("actual", "Contraseña actual incorrecta")
+        dao.actualizar(usuario.copy(claveHash = Claves.crear(nueva)))
+    }
+
     suspend fun datos(): DatosApp =
         db.withTransaction {
             val u = actor()

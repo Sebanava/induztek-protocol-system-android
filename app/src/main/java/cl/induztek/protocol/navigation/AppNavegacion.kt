@@ -26,6 +26,7 @@ fun AppNavegacion(app: AppViewModel = viewModel()) {
     val contexto = LocalContext.current
     val scope = rememberCoroutineScope()
     var aviso by remember { mutableStateOf("") }
+    var recuperando by remember { mutableStateOf(false) }
     val data = estado.datos
     when {
         estado.cargando ->
@@ -37,8 +38,13 @@ fun AppNavegacion(app: AppViewModel = viewModel()) {
                 Text(estado.errorInicio.orEmpty())
                 BotonPrincipal("Reintentar", app::iniciar)
             }
+        data == null && recuperando ->
+            RecuperarClaveScreen(app.sincronizador, { recuperando = false })
         data == null ->
-            FormularioScreen(Accion.LOGIN, "login", "", null, app, estado.ocupado, null, {})
+            FormularioScreen(
+                Accion.LOGIN, "login", "", null, app, estado.ocupado, null,
+                recuperar = { recuperando = true }, exito = {},
+            )
         else ->
             key(data.usuario.id) {
                 val nav = rememberNavController()
@@ -75,6 +81,9 @@ fun AppNavegacion(app: AppViewModel = viewModel()) {
                     enterTransition = { fadeIn() },
                     exitTransition = { fadeOut() },
                 ) {
+                    composable("cambiar-clave") {
+                        CambiarClaveScreen(volver, app::cambiarClave)
+                    }
                     composable("sincronizacion") {
                         SincronizacionScreen(
                             app.sincronizador,

@@ -180,6 +180,16 @@ class AlmacenSincronizacion(private val db: InduztekDatabase) {
             }
         }
 
+    suspend fun confirmarClavePropia(r: UsuarioRemoto, nueva: String) = db.withTransaction {
+        val local = requireNotNull(dao.usuario(r.id))
+        val base = dao.metas().firstOrNull { it.tipo == "usuario" && it.registroId == r.id }
+        dao.actualizar(local.copy(claveHash = Claves.crear(nueva)))
+        val remoto = huellaUsuario(r)
+        if (remoto == huellaUsuario(publico(local)) || remoto == base?.huella)
+            dao.guardarMeta(SincronizacionMeta("usuario", r.id, r.version, remoto))
+        dao.guardarMeta(SincronizacionMeta("clave-pendiente", r.id, 1, "confirmada"))
+    }
+
     suspend fun metas() = dao.metas()
 
     suspend fun meta(r: RegistroRemoto) =

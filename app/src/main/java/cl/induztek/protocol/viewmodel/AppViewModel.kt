@@ -77,6 +77,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val sincronizador
         get() = app.sincronizador
 
+    suspend fun cambiarClave(actual: String, nueva: String, confirmar: String): String =
+        withContext(Dispatchers.IO) {
+            Validacion.validarCambioClave(actual, nueva)
+            if (confirmar != nueva)
+                throw cl.induztek.protocol.domain.ErrorFormulario(mapOf("confirmar" to "Las contraseñas no coinciden"))
+            val usuario = repo.datos().usuario
+            if (sincronizador.cuentaRemota(usuario.id)) {
+                sincronizador.cambiarClaveRemota(usuario.id, usuario.correo, actual, nueva)
+                "Contraseña cambiada. Usa la nueva al volver a iniciar sesión."
+            } else {
+                repo.cambiarClaveLocal(actual, nueva)
+                "Contraseña cambiada en este dispositivo."
+            }
+        }
+
     fun recargar() {
         viewModelScope.launch {
             try {

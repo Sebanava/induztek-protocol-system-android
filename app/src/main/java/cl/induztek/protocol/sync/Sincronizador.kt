@@ -194,6 +194,53 @@ class Sincronizador(
             sesion.usuario
         }
 
+    suspend fun solicitarRecuperacion(direccion: String, correo: String) {
+        Validacion.correo(mapOf("correo" to correo))
+        val remoto = api<IdentidadApi>(direccionDeFormulario(direccion, "identidad"))
+        if (!remoto.solicitarRecuperacion(SolicitudRecuperacion(correo.trim())).isSuccessful)
+            error("La recuperación por correo no está disponible en este servidor")
+    }
+
+    suspend fun recuperarClave(direccion: String, correo: String, codigo: String, nueva: String) {
+        Validacion.correo(mapOf("correo" to correo))
+        Validacion.validarClaveNueva(nueva)
+        if (!codigo.trim().matches(Regex("[A-Za-z0-9_-]{32}")))
+            throw ErrorFormulario(mapOf("codigo" to "Ingresa el código completo de tu correo"))
+        val remoto = api<IdentidadApi>(direccionDeFormulario(direccion, "identidad"))
+        val respuesta = remoto.recuperarClave(ConfirmacionRecuperacion(correo.trim(), codigo.trim(), nueva))
+        if (!respuesta.isSuccessful) {
+            if (respuesta.code() == 400)
+                throw ErrorFormulario(mapOf("codigo" to "Código inválido o vencido"))
+            error("El servidor no pudo completar la recuperación")
+        }
+    }
+
+    suspend fun cuentaRemota(id: String): Boolean =
+        prefs.getString("usuario", null) == id ||
+            almacen.metas().any { it.tipo == "usuario" && it.registroId == id && it.version > 0 }
+
+    suspend fun cambiarClaveRemota(id: String, correo: String, actual: String, nueva: String) =
+        mutex.withLock {
+            Validacion.validarCambioClave(actual, nueva)
+            val identidad = api<IdentidadApi>(urlIdentidad())
+            val sesion = try {
+                val acceso = identidad.ingresar(CredencialesRemotas(correo, actual))
+                check(acceso.usuario.id == id) { "La cuenta del servidor no coincide con tu sesión" }
+                identidad.cambiarClave("Bearer " + acceso.token, CambioClaveRemoto(actual, nueva))
+            } catch (e: HttpException) {
+                when (e.code()) {
+                    401, 403 -> throw ErrorFormulario(mapOf("actual" to "Contraseña actual incorrecta o cuenta inactiva"))
+                    else -> error("El servidor no pudo cambiar la contraseña")
+                }
+            } catch (_: java.io.IOException) {
+                error("No se pudo confirmar el cambio. Comprueba la conexión y vuelve a validar tu cuenta.")
+            }
+            almacen.confirmarClavePropia(sesion.usuario, nueva)
+            if (prefs.getString("usuario", null) == id)
+                prefs.edit().putString("token", sesion.token).apply()
+            Unit
+        }
+
     fun desconectar() {
         if (configurado) planificador.cancelar()
         prefs.edit().remove("token").remove("usuario").apply()
