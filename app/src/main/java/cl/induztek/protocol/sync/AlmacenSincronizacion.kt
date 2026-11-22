@@ -278,14 +278,15 @@ class AlmacenSincronizacion(private val db: InduztekDatabase) {
 
     companion object {
 
-        fun canonico(n: JsonElement): String =
+        fun canonico(n: JsonElement, omitirNulos: Boolean = false): String =
             when {
                 n.isJsonObject ->
                     n.asJsonObject
                         .entrySet()
+                        .filterNot { omitirNulos && it.value.isJsonNull }
                         .sortedBy { it.key }
                         .joinToString(",", "{", "}") {
-                            Gson().toJson(it.key) + ":" + canonico(it.value)
+                            Gson().toJson(it.key) + ":" + canonico(it.value, omitirNulos)
                         }
                 n.isJsonArray -> {
                     val elementos = n.asJsonArray.toList()
@@ -293,15 +294,15 @@ class AlmacenSincronizacion(private val db: InduztekDatabase) {
                         if (elementos.all { it.isJsonObject && it.asJsonObject.has("id") })
                             elementos.sortedBy { it.asJsonObject["id"].asString }
                         else elementos
-                    ordenados.map(::canonico).joinToString(",", "[", "]")
+                    ordenados.map { canonico(it, omitirNulos) }.joinToString(",", "[", "]")
                 }
                 n.isJsonPrimitive && n.asJsonPrimitive.isNumber ->
                     n.asBigDecimal.stripTrailingZeros().toPlainString()
                 else -> n.toString()
             }
 
-        fun huella(n: JsonElement): String =
-            MessageDigest.getInstance("SHA-256").digest(canonico(n).toByteArray()).joinToString(
+        fun huella(n: JsonElement, omitirNulos: Boolean = false): String =
+            MessageDigest.getInstance("SHA-256").digest(canonico(n, omitirNulos).toByteArray()).joinToString(
                 ""
             ) {
                 "%02x".format(it)

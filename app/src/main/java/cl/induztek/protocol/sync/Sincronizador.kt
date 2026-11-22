@@ -7,6 +7,7 @@ import cl.induztek.protocol.data.InduztekDatabase
 import cl.induztek.protocol.domain.ErrorFormulario
 import cl.induztek.protocol.domain.Validacion
 import cl.induztek.protocol.model.Perfil
+import com.google.gson.JsonElement
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import java.net.URI
@@ -310,8 +311,7 @@ class Sincronizador(
                         almacen
                             .exportar()
                             .filter { r ->
-                                AlmacenSincronizacion.huella(r.datos) !=
-                                    metas[r.tipo to r.id]?.huella
+                                !coincideHuella(r.datos, metas[r.tipo to r.id]?.huella)
                             }
                             .filter { r ->
                                 val dato = r.datos.getAsJsonObject("registro")
@@ -399,6 +399,10 @@ class Sincronizador(
             }
         }
 
+    private fun coincideHuella(datos: JsonElement, huella: String?): Boolean =
+        huella != null && (AlmacenSincronizacion.huella(datos) == huella ||
+            AlmacenSincronizacion.huella(datos, omitirNulos = true) == huella)
+
     private suspend fun descargar(
         remotos: List<RegistroRemoto>,
         clienteId: String? = null,
@@ -426,12 +430,12 @@ class Sincronizador(
                     val key = remoto.tipo to remoto.id
                     val local = locales[key]
                     val meta = metas[key]
-                    val huellaLocal = local?.let { AlmacenSincronizacion.huella(it.datos) }
-                    val huellaRemota = AlmacenSincronizacion.huella(remoto.datos)
-                    if (huellaLocal == huellaRemota) almacen.meta(remoto)
-                    else if (local == null || (meta != null && huellaLocal == meta.huella))
+                    val huellaRemota = AlmacenSincronizacion.huella(remoto.datos, omitirNulos = true)
+                    if (local != null && coincideHuella(local.datos, huellaRemota))
+                        almacen.meta(remoto)
+                    else if (local == null || coincideHuella(local.datos, meta?.huella))
                         almacen.aplicar(remoto)
-                    else if (meta != null && meta.version == 0L && huellaRemota == meta.huella)
+                    else if (meta != null && meta.version == 0L && coincideHuella(remoto.datos, meta.huella))
                         almacen.meta(remoto)
                     else if (meta != null && remoto.version == meta.version) Unit
                     else

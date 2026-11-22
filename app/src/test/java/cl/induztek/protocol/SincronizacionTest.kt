@@ -38,6 +38,22 @@ class SincronizacionTest {
     }
 
     @Test
+    fun huellaDeRegistroIgnoraCamposNulosOmitidosPorElServidor() {
+        val local = JsonParser.parseString("""{"historial":[{"anterior":null,"nuevo":"BORRADOR"}]}""")
+        val remoto = JsonParser.parseString("""{"historial":[{"nuevo":"BORRADOR"}]}""")
+        val formalizado = JsonParser.parseString("""{"historial":[{"nuevo":"FORMALIZADO"}]}""")
+
+        assertEquals(
+            AlmacenSincronizacion.huella(remoto),
+            AlmacenSincronizacion.huella(local, omitirNulos = true),
+        )
+        assertNotEquals(
+            AlmacenSincronizacion.huella(formalizado),
+            AlmacenSincronizacion.huella(local, omitirNulos = true),
+        )
+    }
+
+    @Test
     fun exportacionContieneAgregadosCompletosYGeneraFixturesSinteticos() = runBlocking {
         val registros = AlmacenSincronizacion(db).exportar()
         assertEquals(7, registros.count { it.tipo == "protocolo" })

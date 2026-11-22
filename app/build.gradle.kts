@@ -12,8 +12,8 @@ android {
         applicationId = "cl.induztek.protocol"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "0.3.4"
+        versionCode = 9
+        versionName = "0.3.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     val releaseKeystore = providers.environmentVariable("INDUZTEK_KEYSTORE").orNull
