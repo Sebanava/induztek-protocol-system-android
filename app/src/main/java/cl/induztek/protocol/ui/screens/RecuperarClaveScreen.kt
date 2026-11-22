@@ -28,7 +28,7 @@ fun RecuperarClaveScreen(servicio: Sincronizador, volver: () -> Unit) {
     Pantalla("Recuperar contraseña", if (ocupado) null else volver) {
         TarjetaSeccion("Acceso a mi cuenta") {
             if (completado) {
-                Text("Contraseña actualizada. Vuelve al ingreso, activa «Validar cuenta con servidor» e ingresa con tu nueva contraseña.")
+                Text("Contraseña actualizada. Vuelve al ingreso y usa tu nueva contraseña.")
                 BotonPrincipal("Volver al acceso", volver)
             } else {
                 CampoTexto(direccion, { if (!ocupado && !pasoCodigo) direccion = it }, "Dirección del API Gateway", error = errores["identidad"], teclado = KeyboardType.Uri)

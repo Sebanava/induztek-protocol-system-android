@@ -206,13 +206,15 @@ class Sincronizador(
         Validacion.validarClaveNueva(nueva)
         if (!codigo.trim().matches(Regex("[A-Za-z0-9_-]{32}")))
             throw ErrorFormulario(mapOf("codigo" to "Ingresa el código completo de tu correo"))
-        val remoto = api<IdentidadApi>(direccionDeFormulario(direccion, "identidad"))
+        val url = direccionDeFormulario(direccion, "identidad")
+        val remoto = api<IdentidadApi>(url)
         val respuesta = remoto.recuperarClave(ConfirmacionRecuperacion(correo.trim(), codigo.trim(), nueva))
         if (!respuesta.isSuccessful) {
             if (respuesta.code() == 400)
                 throw ErrorFormulario(mapOf("codigo" to "Código inválido o vencido"))
             error("El servidor no pudo completar la recuperación")
         }
+        prefs.edit().putString("identidad", url).putString("protocolos", url).apply()
     }
 
     suspend fun cuentaRemota(id: String): Boolean =

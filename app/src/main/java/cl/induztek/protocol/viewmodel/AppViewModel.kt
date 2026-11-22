@@ -125,18 +125,26 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         var resultado = ""
                         when (accion) {
                             Accion.LOGIN -> {
-                                if (campos["remoto"] == "SI") {
-                                    Validacion.requeridos(
-                                        campos, "correo", "clave", "identidad"
-                                    )
-                                    Validacion.correo(campos)
-                                    app.sincronizador.ingresarDesdeServidor(
-                                        campos.getValue("identidad"),
-                                        campos.getValue("correo"),
-                                        campos.getValue("clave"),
-                                    )
+                                Validacion.requeridos(campos, "correo", "clave")
+                                val usuario = try {
+                                    repo.ingresar(campos)
+                                } catch (e: cl.induztek.protocol.domain.ErrorFormulario) {
+                                    if (e.campos.keys != setOf("clave")) throw e
+                                    val servicio = app.sincronizador
+                                    try {
+                                        servicio.ingresarDesdeServidor(
+                                            servicio.urlIdentidad(),
+                                            campos.getValue("correo"),
+                                            campos.getValue("clave"),
+                                        )
+                                    } catch (remoto: cl.induztek.protocol.domain.ErrorFormulario) {
+                                        if ("identidad" !in remoto.campos) throw remoto
+                                        throw cl.induztek.protocol.domain.ErrorFormulario(
+                                            mapOf("clave" to "Revisa el correo y la contraseña. El primer acceso requiere conexión al servidor.")
+                                        )
+                                    }
+                                    repo.ingresar(campos)
                                 }
-                                val usuario = repo.ingresar(campos)
                                 preferencias.edit().putString("usuarioId", usuario.id).apply()
                             }
                             Accion.CLIENTE -> repo.guardarCliente(campos)

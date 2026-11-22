@@ -48,10 +48,6 @@ fun FormularioScreen(
         iniciales["realizada"] = "SI"
         iniciales["opera"] = "SI"
         iniciales["unidad"] = "MΩ"
-        if (accion == Accion.LOGIN) {
-            iniciales["remoto"] = "NO"
-            iniciales["identidad"] = app.sincronizador.urlIdentidad()
-        }
         if (accion == Accion.PROTOCOLO && data != null) {
             val visita = data.visitas.firstOrNull { it.id == contexto }
             visita?.let {
@@ -240,34 +236,7 @@ fun FormularioScreen(
                 Accion.LOGIN -> {
                     campo("correo", "Correo de usuario", icono = Icons.Default.Email)
                     campo("clave", "Contraseña", secreto = true)
-                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = d["remoto"] == "SI",
-                            onCheckedChange = {
-                                cambiar("remoto", if (it) "SI" else "NO")
-                            },
-                            enabled = !ocupado,
-                        )
-                        Text("Validar cuenta con servidor")
-                    }
-                    AnimatedVisibility(d["remoto"] == "SI") {
-                        Column {
-                            campo(
-                                "identidad",
-                                "Dirección del API Gateway",
-                                icono = Icons.Default.Cloud,
-                            )
-                            Text(
-                                "Úsalo para el primer acceso en este dispositivo o después de un cambio de contraseña. Requiere conexión con tu servidor. Después puedes ingresar sin conexión con la cuenta validada.",
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-                    if (d["remoto"] != "SI")
-                        Text(
-                            "Acceso local: no necesita Internet. Para una cuenta creada en otro dispositivo, valida primero con el servidor.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+
                 }
                 Accion.CLIENTE -> {
                     campo("nombre", "Razón social")
