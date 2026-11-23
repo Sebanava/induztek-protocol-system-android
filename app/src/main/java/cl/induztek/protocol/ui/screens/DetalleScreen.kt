@@ -6,12 +6,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cl.induztek.protocol.data.CalendarioFeriados
 import cl.induztek.protocol.domain.*
 import cl.induztek.protocol.model.*
 import cl.induztek.protocol.native.FotoEquipo
 import cl.induztek.protocol.ui.components.*
 import cl.induztek.protocol.viewmodel.*
 import java.time.LocalDate
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 @Composable
 fun EquipoScreen(
@@ -139,6 +142,7 @@ fun VisitaScreen(
             Text("Ingeniero a cargo: ${data.nombre(v.ingenieroId)}")
             EtiquetaEstado(if (v.cierre == null) "Abierta" else "Cerrada ${v.cierre}")
         }
+        CalendarioVisita(v.fecha)
         val protocolos = data.protocolos.filter { it.visitaId == id }
         TarjetaSeccion("Resumen de visita") {
             Text(
@@ -330,5 +334,40 @@ fun ProtocoloScreen(
                     }
             }
         }
+    }
+}
+
+
+@Composable
+private fun CalendarioVisita(fecha: String) {
+    var resultado by remember(fecha) { mutableStateOf<String?>(null) }
+    var consultando by remember(fecha) { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    TarjetaSeccion("Calendario de Chile") {
+        BotonSecundario(
+            if (consultando) "Consultando…" else "Consultar feriado nacional",
+            {
+                if (!consultando) {
+                    consultando = true
+                    resultado = null
+                    scope.launch {
+                        try {
+                            val feriado = CalendarioFeriados.remoto.buscar(LocalDate.parse(fecha))
+                            resultado = if (feriado == null)
+                                "Nager.Date no registra un feriado nacional para esta fecha."
+                            else "Feriado nacional · $feriado"
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            resultado = "Calendario no disponible. Puedes volver a intentar."
+                        } finally {
+                            consultando = false
+                        }
+                    }
+                }
+            },
+        )
+        resultado?.let { Text(it) }
     }
 }

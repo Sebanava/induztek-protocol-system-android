@@ -5,6 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import cl.induztek.protocol.InduztekApplication
 import cl.induztek.protocol.data.DatosSemilla
+import cl.induztek.protocol.data.InduztekDatabase
+import cl.induztek.protocol.data.InduztekRepository
+import cl.induztek.protocol.sync.Sincronizador
 import cl.induztek.protocol.domain.Validacion
 import cl.induztek.protocol.model.*
 import kotlinx.coroutines.*
@@ -37,9 +40,17 @@ data class AppUiState(
     val errorInicio: String? = null,
 )
 
-class AppViewModel(application: Application) : AndroidViewModel(application) {
-    private val app = application as InduztekApplication
-    private val repo = app.repository
+class AppViewModel internal constructor(
+    application: Application,
+    private val db: InduztekDatabase,
+    private val repo: InduztekRepository,
+    val sincronizador: Sincronizador,
+) : AndroidViewModel(application) {
+    constructor(application: Application) : this(application as InduztekApplication)
+
+    private constructor(app: InduztekApplication) :
+        this(app, app.database, app.repository, app.sincronizador)
+
     private val preferencias = application.getSharedPreferences("sesion", 0)
     private val _estado = MutableStateFlow(AppUiState())
     val estado = _estado.asStateFlow()
@@ -47,7 +58,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     init {
         iniciar()
         viewModelScope.launch {
-            app.sincronizador.estado
+            sincronizador.estado
                 .filter { it.startsWith("Sincronización completada") }
                 .collect { recargar() }
         }
@@ -58,12 +69,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val datos =
                     withContext(Dispatchers.IO) {
-                        DatosSemilla.preparar(app.database)
+                        DatosSemilla.preparar(db)
                         repo.restaurar(preferencias.getString("usuarioId", null))
                         runCatching { repo.datos() }.getOrNull()
                     }
                 _estado.value = AppUiState(cargando = false, datos = datos)
-                if (datos != null) app.sincronizador.programar()
+                if (datos != null) sincronizador.programar()
             } catch (e: Exception) {
                 _estado.value =
                     AppUiState(
@@ -73,9 +84,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-    val sincronizador
-        get() = app.sincronizador
 
     suspend fun cambiarClave(actual: String, nueva: String, confirmar: String): String =
         withContext(Dispatchers.IO) {
@@ -103,7 +111,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun salir() {
         if (_estado.value.ocupado) return
-        app.sincronizador.desconectar()
+        sincronizador.desconectar()
         repo.salir()
         preferencias.edit().remove("usuarioId").apply()
         _estado.value = AppUiState(cargando = false)
@@ -130,7 +138,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                                     repo.ingresar(campos)
                                 } catch (e: cl.induztek.protocol.domain.ErrorFormulario) {
                                     if (e.campos.keys != setOf("clave")) throw e
-                                    val servicio = app.sincronizador
+                                    val servicio = sincronizador
                                     try {
                                         servicio.ingresarDesdeServidor(
                                             servicio.urlIdentidad(),
@@ -171,7 +179,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         resultado to repo.datos()
                     }
                 _estado.update { it.copy(ocupado = false, datos = resultado.second) }
-                app.sincronizador.programar()
+                sincronizador.programar()
                 exito(resultado.first)
             } catch (e: CancellationException) {
                 throw e
@@ -193,7 +201,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         repo.datos()
                     }
                 _estado.update { it.copy(datos = data, ocupado = false) }
-                app.sincronizador.programar()
+                sincronizador.programar()
                 terminar("Fotografía guardada")
             } catch (e: Exception) {
                 _estado.update { it.copy(ocupado = false) }

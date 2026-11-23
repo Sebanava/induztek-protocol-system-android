@@ -1,4 +1,5 @@
 plugins {
+    jacoco
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -12,8 +13,8 @@ android {
         applicationId = "cl.induztek.protocol"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "0.3.5"
+        versionCode = 10
+        versionName = "0.3.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     val releaseKeystore = providers.environmentVariable("INDUZTEK_KEYSTORE").orNull
@@ -26,6 +27,7 @@ android {
         }
         buildTypes.getByName("release").signingConfig = signingConfigs.getByName("distribucion")
     }
+    buildTypes.getByName("debug").enableUnitTestCoverage = true
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -36,6 +38,10 @@ android {
         unitTests.isIncludeAndroidResources = true
         unitTests.all { test ->
             test.exclude("**/SincronizacionHttpTest*")
+            test.extensions.configure<JacocoTaskExtension> {
+                isIncludeNoLocationClasses = true
+                excludes = listOf("jdk.internal.*")
+            }
             test.systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
             val testHome = layout.buildDirectory.dir("test-home").get().asFile
             test.systemProperty("user.home", testHome.absolutePath)
@@ -92,4 +98,29 @@ tasks.register<Test>("integracionHttp") {
     workingDir = pruebas.get().workingDir
     maxHeapSize = "1024m"
     include("**/SincronizacionHttpTest*")
+}
+
+
+jacoco { toolVersion = "0.8.11" }
+
+tasks.register<JacocoReport>("coberturaLogicaDebug") {
+    dependsOn("testDebugUnitTest")
+    executionData(layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"))
+    val paquete = "cl/induztek/protocol"
+    classDirectories.setFrom(layout.buildDirectory.dir("tmp/kotlin-classes/debug").map { dir ->
+        dir.asFileTree.matching {
+            include(
+                "$paquete/domain/**",
+                "$paquete/data/InduztekRepository*.class",
+                "$paquete/data/Calendario*.class",
+                "$paquete/viewmodel/**",
+            )
+            exclude("**/*_Impl*.class")
+        }
+    })
+    sourceDirectories.setFrom("src/main/java")
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }

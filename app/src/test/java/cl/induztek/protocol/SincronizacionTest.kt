@@ -38,6 +38,23 @@ class SincronizacionTest {
     }
 
     @Test
+    fun calendarioInformaSoloFeriadosNacionalesPublicos() = runBlocking {
+        val api = object : CalendarioNagerApi {
+            override suspend fun feriados(anio: Int): List<Feriado> {
+                assertEquals(2026, anio)
+                return listOf(
+                    Feriado("2026-09-18", "Regional", false, listOf("Public")),
+                    Feriado("2026-09-18", "Bancario", true, listOf("Bank")),
+                    Feriado("2026-09-18", "Fiestas Patrias", true, listOf("Public")),
+                )
+            }
+        }
+        val calendario = CalendarioFeriados(api)
+        assertEquals("Fiestas Patrias", calendario.buscar(java.time.LocalDate.parse("2026-09-18")))
+        assertNull(calendario.buscar(java.time.LocalDate.parse("2026-09-17")))
+    }
+
+    @Test
     fun huellaDeRegistroIgnoraCamposNulosOmitidosPorElServidor() {
         val local = JsonParser.parseString("""{"historial":[{"anterior":null,"nuevo":"BORRADOR"}]}""")
         val remoto = JsonParser.parseString("""{"historial":[{"nuevo":"BORRADOR"}]}""")
